@@ -105,6 +105,7 @@ public class MainApp extends Application {
     private static final int ICON_SIZE_TOOLBAR = 40;
     private static final boolean IS_MAC = SystemUtils.IS_OS_MAC;
     private static final Logger LOGGER = Logger.getLogger(MainApp.class.getName());
+    private static boolean sEmbedded = false;
     private Action mAboutAction;
     private Action mAboutDateFormatAction;
     private Action mAddAction;
@@ -135,11 +136,35 @@ public class MainApp extends Application {
     private Stage mStage;
     private ToolBar mToolBar;
 
+    public static boolean isEmbedded() {
+        return sEmbedded;
+    }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public static void setEmbedded(boolean embedded) {
+        sEmbedded = embedded;
+    }
+
+    public MainApp() {
+    }
+
+    public BorderPane getRoot() {
+        return mRoot;
+    }
+
+    public void initEmbedded() {
+        createUI();
+        postInit();
+    }
+
+    public void setOperationListener(OperationListener operationListener) {
+        mOperationListener = operationListener;
     }
 
     @Override
@@ -176,7 +201,6 @@ public class MainApp extends Application {
 
     private void createUI() {
         mRoot = new BorderPane();
-        Scene scene = new Scene(mRoot);
         //scene.getStylesheets().add("css/modena_dark.css");
 
         mDefaultFont = Font.getDefault();
@@ -184,7 +208,6 @@ public class MainApp extends Application {
 
         mListView = new ListView<>();
         mListView.setItems(mItems);
-        mListView.setCellFactory((ListView<Profile> param) -> new ProfileListCell());
         Label welcomeLabel = new Label(mBundle.getString("welcome"));
         welcomeLabel.setFont(Font.font(mDefaultFont.getName(), FontPosture.ITALIC, 18));
 
@@ -196,7 +219,12 @@ public class MainApp extends Application {
         mOpenButton.setGraphic(mFontAwesome.create(FontAwesome.Glyph.GLOBE).size(ICON_SIZE_TOOLBAR / 2).color(mIconColor));
         mListView.setPlaceholder(welcomeLabel);
         mRoot.setCenter(mListView);
-        mStage.setScene(scene);
+
+        if (!sEmbedded) {
+            mListView.setCellFactory((ListView<Profile> param) -> new ProfileListCell());
+            mStage.setScene(new Scene(mRoot));
+        }
+
         setRunningState(RunState.STARTABLE);
     }
 
@@ -574,10 +602,17 @@ public class MainApp extends Application {
                 )
         ));
 
+        if (isEmbedded()) {
+            actions.remove(mHomeAction);
+            actions.remove(mLogAction);
+            actions.remove(mOptionsAction);
+        }
+
         Platform.runLater(() -> {
             if (mToolBar == null) {
                 mToolBar = ActionUtils.createToolBar(actions, ActionUtils.ActionTextBehavior.HIDE);
                 mToolBar.setStyle("-fx-spacing: 0px;");
+                mToolBar.setPadding(new Insets(1, 0, 1, 0));
                 mRoot.setTop(mToolBar);
             } else {
                 mToolBar = ActionUtils.updateToolBar(mToolBar, actions, ActionUtils.ActionTextBehavior.HIDE);

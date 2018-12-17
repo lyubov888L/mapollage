@@ -40,8 +40,8 @@ public class OptionsPanel extends GridPane {
     private final CheckBox mCleanNs2CheckBox = new CheckBox(mBundle.getString("OptionsPanel.cleanNs2CheckBox"));
     private final CheckBox mCleanSpaceCheckBox = new CheckBox(mBundle.getString("OptionsPanel.cleanSpaceCheckBox"));
     private final Font mDefaultFont = Font.getDefault();
-    private final Spinner<Double> mDefaultLongitudeSpinner = new Spinner(-180, 180, 0, 0.01);
     private final Spinner<Double> mDefaultLatitudeSpinner = new Spinner(-90, 90, 0, 0.01);
+    private final Spinner<Double> mDefaultLongitudeSpinner = new Spinner(-180, 180, 0, 0.01);
     private final LocaleComboBox mLocaleComboBox = new LocaleComboBox();
     private final CheckBox mLogKmlCheckBox = new CheckBox(mBundle.getString("OptionsPanel.logKmlCheckBox"));
     private final Options mOptions = Options.getInstance();
@@ -53,6 +53,18 @@ public class OptionsPanel extends GridPane {
     public OptionsPanel() {
         createUI();
         load();
+    }
+
+    public void save() {
+        mOptions.setLocale(mLocaleComboBox.getLocale());
+        mOptions.setWordWrap(mWordWrapCheckBox.isSelected());
+        mOptions.setCleanNs2(mCleanNs2CheckBox.isSelected());
+        mOptions.setCleanSpace(mCleanSpaceCheckBox.isSelected());
+        mOptions.setDefaultLat(mDefaultLatitudeSpinner.getValue());
+        mOptions.setDefaultLon(mDefaultLongitudeSpinner.getValue());
+        mOptions.setLogKml(mLogKmlCheckBox.isSelected());
+        mOptions.setThumbnailSize(mThumbnailSizeSpinner.getValue());
+        mOptions.setThumbnailBorderSize(mThumbnailBorderSizeSpinner.getValue());
     }
 
     private void addTopMargin(Region... regions) {
@@ -149,15 +161,4 @@ public class OptionsPanel extends GridPane {
         mThumbnailBorderSizeSpinner.getValueFactory().setValue(mOptions.getThumbnailBorderSize());
     }
 
-    void save() {
-        mOptions.setLocale(mLocaleComboBox.getLocale());
-        mOptions.setWordWrap(mWordWrapCheckBox.isSelected());
-        mOptions.setCleanNs2(mCleanNs2CheckBox.isSelected());
-        mOptions.setCleanSpace(mCleanSpaceCheckBox.isSelected());
-        mOptions.setDefaultLat(mDefaultLatitudeSpinner.getValue());
-        mOptions.setDefaultLon(mDefaultLongitudeSpinner.getValue());
-        mOptions.setLogKml(mLogKmlCheckBox.isSelected());
-        mOptions.setThumbnailSize(mThumbnailSizeSpinner.getValue());
-        mOptions.setThumbnailBorderSize(mThumbnailBorderSizeSpinner.getValue());
-    }
 }
